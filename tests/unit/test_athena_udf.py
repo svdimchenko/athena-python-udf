@@ -3,8 +3,8 @@ import copy
 import datetime
 import uuid
 from unittest.mock import ANY, Mock
-
 import pyarrow as pa
+
 from athena_udf import BaseAthenaUDF
 
 REQUEST_TEMPLATE = {
@@ -85,7 +85,9 @@ def test_simple_varchar():
     request["outputSchema"]["schema"] = base64.b64encode(schema.serialize())
 
     inputs = ["foo", "bar"]
-    records = base64.b64encode(pa.RecordBatch.from_arrays([inputs], schema=schema).serialize()).decode()
+    records = base64.b64encode(
+        pa.RecordBatch.from_arrays([inputs], schema=schema).serialize()
+    ).decode()
     request["inputRecords"]["records"] = records
     test_udf = TestSimpleVarcharUDF()
     test_udf.handle_ping = Mock()
@@ -95,7 +97,9 @@ def test_simple_varchar():
 
     assert resp["methodName"] == "my_udf"
     assert resp["@type"] == "UserDefinedFunctionResponse"
-    output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(resp["records"]["schema"])))
+    output_schema = pa.ipc.read_schema(
+        pa.BufferReader(base64.b64decode(resp["records"]["schema"]))
+    )
     record_batch = pa.ipc.read_record_batch(
         pa.BufferReader(base64.b64decode(resp["records"]["records"])),
         output_schema,
@@ -114,11 +118,17 @@ def test_two_varchars():
     )
     output_schema = pa.schema([("0", pa.string())])
 
-    request["inputRecords"]["schema"] = base64.b64encode(input_schema.serialize())
-    request["outputSchema"]["schema"] = base64.b64encode(output_schema.serialize())
+    request["inputRecords"]["schema"] = base64.b64encode(
+        input_schema.serialize()
+    )
+    request["outputSchema"]["schema"] = base64.b64encode(
+        output_schema.serialize()
+    )
 
     inputs = [["foo", "fud"], ["bar", "bud"]]
-    records = base64.b64encode(pa.RecordBatch.from_arrays(inputs, schema=input_schema).serialize()).decode()
+    records = base64.b64encode(
+        pa.RecordBatch.from_arrays(inputs, schema=input_schema).serialize()
+    ).decode()
     request["inputRecords"]["records"] = records
     test_udf = TestTwoVarcharUDF()
     test_udf.handle_ping = Mock()
@@ -128,7 +138,9 @@ def test_two_varchars():
 
     assert resp["methodName"] == "my_udf"
     assert resp["@type"] == "UserDefinedFunctionResponse"
-    output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(resp["records"]["schema"])))
+    output_schema = pa.ipc.read_schema(
+        pa.BufferReader(base64.b64decode(resp["records"]["schema"]))
+    )
     record_batch = pa.ipc.read_record_batch(
         pa.BufferReader(base64.b64decode(resp["records"]["records"])),
         output_schema,
@@ -139,14 +151,22 @@ def test_two_varchars():
 
 def test_array():
     request = copy.copy(REQUEST_TEMPLATE)
-    incoming_schema = pa.schema([("0", pa.string()), ("1", pa.list_(pa.string()))])
+    incoming_schema = pa.schema(
+        [("0", pa.string()), ("1", pa.list_(pa.string()))]
+    )
 
     output_schema = pa.schema([("0", pa.list_(pa.string()))])
-    request["inputRecords"]["schema"] = base64.b64encode(incoming_schema.serialize())
-    request["outputSchema"]["schema"] = base64.b64encode(output_schema.serialize())
+    request["inputRecords"]["schema"] = base64.b64encode(
+        incoming_schema.serialize()
+    )
+    request["outputSchema"]["schema"] = base64.b64encode(
+        output_schema.serialize()
+    )
 
     inputs = [["foo1", "foo2"], [["boo1", "boo2"], ["baa1", "baa2"]]]
-    records = base64.b64encode(pa.RecordBatch.from_arrays(inputs, schema=incoming_schema).serialize()).decode()
+    records = base64.b64encode(
+        pa.RecordBatch.from_arrays(inputs, schema=incoming_schema).serialize()
+    ).decode()
     request["inputRecords"]["records"] = records
     test_udf = TestArrayUDF()
     test_udf.handle_ping = Mock()
@@ -156,7 +176,9 @@ def test_array():
 
     assert resp["methodName"] == "my_udf"
     assert resp["@type"] == "UserDefinedFunctionResponse"
-    output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(resp["records"]["schema"])))
+    output_schema = pa.ipc.read_schema(
+        pa.BufferReader(base64.b64decode(resp["records"]["schema"]))
+    )
     record_batch = pa.ipc.read_record_batch(
         pa.BufferReader(base64.b64decode(resp["records"]["records"])),
         output_schema,
@@ -173,7 +195,9 @@ def test_datetime():
     date1 = datetime.datetime.now().date()
     date2 = datetime.datetime.now().date()
     inputs = [date1, date2]
-    records = base64.b64encode(pa.RecordBatch.from_arrays([inputs], schema=schema).serialize()).decode()
+    records = base64.b64encode(
+        pa.RecordBatch.from_arrays([inputs], schema=schema).serialize()
+    ).decode()
     request["inputRecords"]["records"] = records
     test_udf = TestDateUDF()
     test_udf.handle_ping = Mock()
@@ -183,7 +207,9 @@ def test_datetime():
 
     assert resp["methodName"] == "my_udf"
     assert resp["@type"] == "UserDefinedFunctionResponse"
-    output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(resp["records"]["schema"])))
+    output_schema = pa.ipc.read_schema(
+        pa.BufferReader(base64.b64decode(resp["records"]["schema"]))
+    )
     record_batch = pa.ipc.read_record_batch(
         pa.BufferReader(base64.b64decode(resp["records"]["records"])),
         output_schema,
