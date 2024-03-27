@@ -43,7 +43,14 @@ class BaseAthenaUDF:
 
         outputs = []
         with ThreadPoolExecutor() as executor:
-            if self.chunk_size:
+            if self.chunk_size is None:
+                futures = [
+                    executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
+                    for record in record_batch_list
+                ]
+                for future in as_completed(futures):
+                    outputs.append(future.result())
+            else:
                 futures = [
                     [
                         executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
@@ -54,13 +61,6 @@ class BaseAthenaUDF:
                 for future_batch in futures:
                     for future in as_completed(future_batch):
                         outputs.append(future.result())
-            else:
-                futures = [
-                    executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
-                    for record in record_batch_list
-                ]
-                for future in as_completed(futures):
-                    outputs.append(future.result())
         return {
             "@type": "UserDefinedFunctionResponse",
             "records": {
