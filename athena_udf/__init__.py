@@ -1,10 +1,18 @@
 import base64
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Optional
 from uuid import uuid4
 
 import pyarrow as pa
 
+from .utils import get_chunks
+
 
 class BaseAthenaUDF:
+
+    def __init__(self, chunk_size: Optional[int] = None):
+        self.chunk_size = chunk_size
+
     @staticmethod
     def handle_ping(event):
         return {
@@ -24,8 +32,7 @@ class BaseAthenaUDF:
 
         raise Exception(f"Unknown event type {incoming_type} from Athena")
 
-    @classmethod
-    def handle_udf_request(cls, event):
+    def handle_udf_request(self, event):
         input_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(event["inputRecords"]["schema"])))
         output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(event["outputSchema"]["schema"])))
         record_batch = pa.ipc.read_record_batch(
@@ -35,9 +42,25 @@ class BaseAthenaUDF:
         record_batch_list = record_batch.to_pylist()
 
         outputs = []
-        for record in record_batch_list:
-            output = cls.handle_athena_record(input_schema, output_schema, list(record.values()))
-            outputs.append(output)
+        with ThreadPoolExecutor() as executor:
+            if self.chunk_size:
+                futures = [
+                    [
+                        executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
+                        for record in batch
+                    ]
+                    for batch in get_chunks(record_batch_list, self.chunk_size)
+                ]
+                for future_batch in futures:
+                    for future in as_completed(future_batch):
+                        outputs.append(future.result())
+            else:
+                futures = [
+                    executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
+                    for record in record_batch_list
+                ]
+                for future in as_completed(futures):
+                    outputs.append(future.result())
         return {
             "@type": "UserDefinedFunctionResponse",
             "records": {
