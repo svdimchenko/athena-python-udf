@@ -1,4 +1,4 @@
-# athena-udf
+# athena-python-udf
 
 <!-- markdownlint-disable -->
 [![PyPI](https://img.shields.io/pypi/v/athena-udf.svg)](https://pypi.org/project/athena-udf/)
