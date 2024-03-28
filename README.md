@@ -16,7 +16,7 @@ so you don't have to use Java, and you can use any Python library you wish, incl
 Install this library using `pip`:
 
 ```bash
-pip install athena-udf
+pip install athena-python-udf
 ```
 
 ## Usage
