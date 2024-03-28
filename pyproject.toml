@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "athena-python-udf"
+version = "0.1.0"
+description = "Athena User Defined Functions(UDFs) in Python made easy!"
+license = "Apache-2.0"
+authors = ["David Markey <david@dmarkey.com>"]
+maintainers = ["Serhii Dimchenko <svdimchenko@gmail.com>"]
+keywords = ["aws", "athena", "python", "udf", "lambda"]
+readme = "README.md"
+repository = "https://github.com/dbt-athena/athena-python-udf"
+packages = [{include = "athena_udf"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyarrow = "^15.0.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.1"
+pre-commit = "^3.7.0"
+black = "^24.3.0"
+flake8 = "^7.0.0"
+flake8-pyproject = "^1.2.3"
+
+[tool.autoflake]
+recursive = true
+in-place = true
+remove-all-unused-imports = true
+remove-unused-variables = true
+
+[tool.black]
+line-length = 120
+target-version = ['py37', 'py38', 'py39', 'py310']
+include = '\.pyi?$'
+
+[tool.flake8]
+files = '.*\.py'
+max-line-length = 120
+exclude = ['.git', '.eggs', '__pycache__', 'venv', '.venv']
+ignore = [
+    # space before: (needed for how black formats slicing)
+    'E203',
+    # line break before binary operator (needed for how black formats long lines)
+    'W503'
+]
+
+[tool.isort]
+profile = 'black'
+src_paths = ['athena_udf', 'test']
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests/unit"
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

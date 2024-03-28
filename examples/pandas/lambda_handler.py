@@ -1,5 +1,6 @@
-import athena_udf
 import pandas as pd
+
+import athena_udf
 
 
 class PandasUDF(athena_udf.BaseAthenaUDF):

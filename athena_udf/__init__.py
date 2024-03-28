@@ -1,5 +1,6 @@
-from uuid import uuid4
 import base64
+from uuid import uuid4
+
 import pyarrow as pa
 
 
@@ -25,25 +26,17 @@ class BaseAthenaUDF:
 
     @classmethod
     def handle_udf_request(cls, event):
-        input_schema = pa.ipc.read_schema(
-            pa.BufferReader(base64.b64decode(event["inputRecords"]["schema"]))
-        )
-        output_schema = pa.ipc.read_schema(
-            pa.BufferReader(base64.b64decode(event["outputSchema"]["schema"]))
-        )
+        input_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(event["inputRecords"]["schema"])))
+        output_schema = pa.ipc.read_schema(pa.BufferReader(base64.b64decode(event["outputSchema"]["schema"])))
         record_batch = pa.ipc.read_record_batch(
-            pa.BufferReader(
-                base64.b64decode(event["inputRecords"]["records"])
-            ),
+            pa.BufferReader(base64.b64decode(event["inputRecords"]["records"])),
             input_schema,
         )
         record_batch_list = record_batch.to_pylist()
 
         outputs = []
         for record in record_batch_list:
-            output = cls.handle_athena_record(
-                input_schema, output_schema, list(record.values())
-            )
+            output = cls.handle_athena_record(input_schema, output_schema, list(record.values()))
             outputs.append(output)
         return {
             "@type": "UserDefinedFunctionResponse",
@@ -51,9 +44,7 @@ class BaseAthenaUDF:
                 "aId": str(uuid4()),
                 "schema": event["outputSchema"]["schema"],
                 "records": base64.b64encode(
-                    pa.RecordBatch.from_arrays(
-                        [outputs], schema=output_schema
-                    ).serialize()
+                    pa.RecordBatch.from_arrays([outputs], schema=output_schema).serialize()
                 ).decode(),
             },
             "methodName": event["methodName"],
