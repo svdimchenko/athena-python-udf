@@ -1,17 +1,17 @@
 import base64
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional
 from uuid import uuid4
 
 import pyarrow as pa
 
-from athena_udf.utils import get_chunks
+from athena_udf.utils import process_records, process_records_in_chunks
 
 
 class BaseAthenaUDF:
 
-    def __init__(self, chunk_size: Optional[int] = None):
+    def __init__(self, chunk_size: Optional[int] = None, use_threads: bool = True):
         self.chunk_size = chunk_size
+        self.use_threads = use_threads
 
     @staticmethod
     def handle_ping(event):
@@ -41,26 +41,18 @@ class BaseAthenaUDF:
         )
         record_batch_list = record_batch.to_pylist()
 
-        outputs = []
-        with ThreadPoolExecutor() as executor:
+        if self.use_threads:
             if self.chunk_size is None:
-                futures = [
-                    executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
-                    for record in record_batch_list
-                ]
-                for future in as_completed(futures):
-                    outputs.append(future.result())
+                outputs = process_records(self.handle_athena_record, (input_schema, output_schema), record_batch_list)
             else:
-                futures = [
-                    [
-                        executor.submit(self.handle_athena_record, input_schema, output_schema, list(record.values()))
-                        for record in batch
-                    ]
-                    for batch in get_chunks(record_batch_list, self.chunk_size)
-                ]
-                for future_batch in futures:
-                    for future in as_completed(future_batch):
-                        outputs.append(future.result())
+                outputs = process_records_in_chunks(
+                    self.handle_athena_record, (input_schema, output_schema), record_batch_list, self.chunk_size
+                )
+        else:
+            outputs = [
+                self.handle_athena_record(input_schema, output_schema, list(record.values()))
+                for record in record_batch_list
+            ]
         return {
             "@type": "UserDefinedFunctionResponse",
             "records": {
