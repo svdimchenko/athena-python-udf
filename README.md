@@ -1,9 +1,9 @@
 # athena-python-udf
 
 <!-- markdownlint-disable -->
-[![PyPI](https://img.shields.io/pypi/v/athena-udf.svg)](https://pypi.org/project/athena-udf/)
-[![Changelog](https://img.shields.io/github/v/release/dmarkey/python-athena-udf?include_prereleases&label=changelog)](https://github.com/dmarkey/python-athena-udf/releases)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dmarkey/python-athena-udf/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/athena-python-udf.svg)](https://pypi.org/project/athena-python-udf/)
+[![Changelog](https://img.shields.io/github/v/release/dbt-athena/athena-python-udf?include_prereleases&label=changelog)](https://github.com/dbt-athena/athena-python-udf/releases)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dbt-athena/athena-python-udf/blob/main/LICENSE)
 <!-- markdownlint-restore -->
 
 Athena User Defined Functions(UDFs) in Python made easy!
