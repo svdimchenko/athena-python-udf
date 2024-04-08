@@ -28,24 +28,32 @@ REQUEST_TEMPLATE = {
 
 
 class TestSimpleVarcharUDF(BaseAthenaUDF):
+    __test__ = False
+
     @staticmethod
     def handle_athena_record(input_schema, output_schema, arguments):
         return arguments[0].upper()
 
 
 class TestTwoVarcharUDF(BaseAthenaUDF):
+    __test__ = False
+
     @staticmethod
     def handle_athena_record(input_schema, output_schema, arguments):
         return arguments[0] + arguments[1]
 
 
 class TestArrayUDF(BaseAthenaUDF):
+    __test__ = False
+
     @staticmethod
     def handle_athena_record(input_schema, output_schema, arguments):
         return [arguments[0]] + arguments[1]
 
 
 class TestDateUDF(BaseAthenaUDF):
+    __test__ = False
+
     @staticmethod
     def handle_athena_record(input_schema, output_schema, arguments):
         return arguments[0]

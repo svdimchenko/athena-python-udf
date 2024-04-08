@@ -5,12 +5,6 @@ the pandas
 [pct_change](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pct_change.html#pandas-dataframe-pct-change)
 function.
 
-## Building
-
-Build the ARM64 lambda ready to deploy using `make build`
-
-This lambda is over the GUI upload limit in the console, so you will have to use an S3 bucket.
-
 ## Example usage
 
 Assuming the lambda function is called `my-lambda` then run a query like this:

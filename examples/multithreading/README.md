@@ -1,6 +1,7 @@
-# Simple Varchar example
+# Multithreading example
 
 This example simply takes a string and returns the lowercase version.
+The lambda is using python `ThreadPoolExecutor` to speed up execution.
 
 ## Example usage
 

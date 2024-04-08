@@ -1,9 +1,9 @@
 import pandas as pd
 
-import athena_udf
+from athena_udf import BaseAthenaUDF
 
 
-class PandasUDF(athena_udf.BaseAthenaUDF):
+class PandasUDF(BaseAthenaUDF):
 
     @staticmethod
     def handle_athena_record(input_schema, output_schema, arguments):
@@ -12,4 +12,4 @@ class PandasUDF(athena_udf.BaseAthenaUDF):
         return list(series.pct_change())
 
 
-lambda_handler = PandasUDF().lambda_handler
+lambda_handler = PandasUDF(use_threads=False).lambda_handler
