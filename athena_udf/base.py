@@ -1,5 +1,5 @@
 import base64
-from typing import Optional
+from typing import Any, Optional
 from uuid import uuid4
 
 import pyarrow as pa
@@ -9,9 +9,10 @@ from athena_udf.utils import process_records, process_records_in_chunks
 
 class BaseAthenaUDF:
 
-    def __init__(self, chunk_size: Optional[int] = None, use_threads: bool = True):
+    def __init__(self, chunk_size: Optional[int] = None, use_threads: bool = True, max_workers: Optional[int] = None):
         self.chunk_size = chunk_size
         self.use_threads = use_threads
+        self.max_workers = max_workers
 
     @staticmethod
     def handle_ping(event):
@@ -43,10 +44,16 @@ class BaseAthenaUDF:
 
         if self.use_threads:
             if self.chunk_size is None:
-                outputs = process_records(self.handle_athena_record, (input_schema, output_schema), record_batch_list)
+                outputs = process_records(
+                    self.handle_athena_record, (input_schema, output_schema), record_batch_list, self.max_workers
+                )
             else:
                 outputs = process_records_in_chunks(
-                    self.handle_athena_record, (input_schema, output_schema), record_batch_list, self.chunk_size
+                    self.handle_athena_record,
+                    (input_schema, output_schema),
+                    record_batch_list,
+                    self.chunk_size,
+                    self.max_workers,
                 )
         else:
             outputs = [
@@ -66,5 +73,5 @@ class BaseAthenaUDF:
         }
 
     @staticmethod
-    def handle_athena_record(input_schema, output_schema, arguments):
+    def handle_athena_record(input_schema: pa.Schema, output_schema: pa.Schema, arguments: list[Any]):
         raise NotImplementedError()
