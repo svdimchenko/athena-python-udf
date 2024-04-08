@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "athena-python-udf"
-version = "0.1.0"
+version = "0.2.0"
 description = "Athena User Defined Functions(UDFs) in Python made easy!"
 license = "Apache-2.0"
 authors = ["David Markey <david@dmarkey.com>"]
