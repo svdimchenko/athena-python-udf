@@ -5,6 +5,7 @@
 # Python virtualenv
 .venv
 venv
+poetry.lock
 
 # Python artifacts
 __pycache__/
